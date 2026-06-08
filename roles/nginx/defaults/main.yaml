@@ -1,0 +1,5 @@
+---
+nginx_repo_key:
+  path: /etc/apt/keyrings/nginx-archive-keyring.gpg
+  url: https://nginx.org/keys/nginx_signing.key
+...

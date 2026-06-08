@@ -1,0 +1,24 @@
+---
+- name: Create Forgejo directory
+  ansible.builtin.file:
+    path: /opt/forgejo
+    state: directory
+    mode: "0700"
+
+- name: Create Forgejo Docker Compose
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: /opt/forgejo/docker-compose.yaml
+    mode: "0700"
+
+- name: Start Forgejo
+  community.docker.docker_compose_v2:
+    project_src: /opt/forgejo
+
+- name: Configure nginx
+  ansible.builtin.template:
+    src: forgejo.conf.j2
+    dest: /etc/nginx/conf.d/forgejo.conf
+    mode: "0744"
+  notify: Restart nginx
+...

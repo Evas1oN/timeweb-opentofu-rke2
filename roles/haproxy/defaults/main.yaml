@@ -1,0 +1,4 @@
+---
+# @var haproxy_version:description: HAProxy version from https://haproxy.debian.net
+haproxy_version: 3.2
+...

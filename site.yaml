@@ -1,0 +1,38 @@
+- name: Deploy Forgejo
+  hosts: forgejo
+  roles:
+    - role: nginx
+    - role: docker
+    - role: forgejo
+
+- name: Deploy HAProxy
+  hosts: haproxy
+  pre_tasks:
+    - name: Check Debian distribution
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution_release'] in ['trixie', 'bookworm', 'sid']
+        fail_msg: Unsupported Debian release (expected trixie, bookworm, or sid)
+      when: ansible_facts['distribution'] == "Debian"
+  roles:
+    - role: haproxy
+    - role: docker
+    - role: docker-proxy
+
+- name: Deploy RKE2 cluster
+  hosts: k8s_cluster
+  vars:
+    rke2_version: v1.35.5+rke2r2
+    rke2_airgap_mode: true
+    rke2_download_kubeconf: true
+    rke2_ha_mode: true
+    rke2_ha_mode_keepalived: false
+  pre_tasks:
+    - name: Check RKE2 token
+      ansible.builtin.assert:
+        that:
+          - rke2_token is defined
+          - rke2_token != "defaultSecret12345"
+        fail_msg: Please set non-default rke2_token
+  roles:
+    - role: lablabs.rke2

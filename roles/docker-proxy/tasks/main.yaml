@@ -1,0 +1,9 @@
+- name: Create docker mirror
+  community.docker.docker_container:
+    name: docker-mirror
+    image: dockerhub.timeweb.cloud/library/registry:2
+    ports:
+      - 5000:5000
+    restart_policy: unless-stopped
+    env:
+      REGISTRY_PROXY_REMOTEURL: "{{ docker_proxy_remoteurl }}"

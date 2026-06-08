@@ -1,0 +1,60 @@
+---
+- name: Get haproxy-archive-keyring
+  ansible.builtin.get_url:
+    url: https://haproxy.debian.net/haproxy-archive-keyring.gpg
+    dest: /etc/apt/keyrings/haproxy-archive-keyring.gpg
+    mode: "0744"
+    owner: root
+    group: root
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts['distribution_release'] }}-backports-{{ haproxy_version }}"
+
+- name: Create haproxy sources
+  ansible.builtin.deb822_repository:
+    name: haproxy
+    types:
+      - deb
+    uris:
+      - https://haproxy.debian.net/
+    suites:
+      - "{{ ansible_facts['distribution_release'] }}-backports-{{ haproxy_version }}"
+    components:
+      - main
+    signed_by: /etc/apt/keyrings/haproxy-archive-keyring.gpg
+    architectures:
+      - amd64
+
+- name: Install haproxy package
+  ansible.builtin.package:
+    name: haproxy
+    state: present
+    update_cache: true
+
+- name: Copy Let's Encrypt fullchain
+  ansible.builtin.copy:
+    content: |-
+      {{ ssl_fullchain | trim }}
+      {{ ssl_privkey | trim }}
+    dest: /etc/ssl/private/domain.pem
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Configure haproxy
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: "0744"
+    owner: root
+    group: root
+  notify:
+    - Restart haproxy
+
+- name: Enable haproxy service
+  ansible.builtin.service:
+    name: haproxy
+    enabled: true
+    state: started
+...
