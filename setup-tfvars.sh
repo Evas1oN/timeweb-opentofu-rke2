@@ -12,7 +12,7 @@ openssl req -x509 \
   -keyout $TEMP_DIR/privkey.pem \
   -out $TEMP_DIR/fullchain.pem \
   -days 365 \
-  -subj "/C=RU/ST=Leningradskaya oblast/L=Saint-Petersburg/O=DevOps&CO/OU=IT/CN=$1"
+  -subj "/C=RU/ST=Moscow oblast/L=Moscow/O=DevOps&CO/OU=IT/CN=$1"
 
 cat <<EOL > $OUTPUT_FILE
 timeweb_token = ""
